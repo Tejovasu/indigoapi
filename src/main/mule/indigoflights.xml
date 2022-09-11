@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	<flow name="indigoflightsFlow" doc:id="1748683f-3e8d-4e68-8967-e9d425c5d4b2" >
+		<logger level="INFO" doc:name="Logger" doc:id="bb3d1638-ce03-4d03-90c9-965cdf2078ab" message="indigo flights flow starts--------"/>
+		<try doc:name="Try" doc:id="1f9f93a8-d81f-49cc-a879-1afe895dc865" >
+			<http:request method="GET" doc:name="Request" doc:id="7cc86af1-5372-4003-9fcd-16f15fa0527a" config-ref="HTTP_Request_configuration" path="/api/getFlights">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	from : attributes.queryParams.source,
+	to : attributes.queryParams.destination,
+	depatureDate : attributes.queryParams.doj
+}]]]></http:query-params>
+		</http:request>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0dbc4d1f-5fd3-4fd5-9924-75cea8ff0eac" >
+					<ee:transform doc:name="Transform Message" doc:id="5694b951-3228-4280-8284-988b661d3f31" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status code":500,
+	"message":" indigo airlines server down"
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="4ce57f88-5b7e-45b0-baf7-5bd35c2205e2" message="Response from indigo airlines-------#[payload]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="785c052a-08e7-41c8-9a44-0a8563423f6b" >
+				<ee:transform doc:name="Transform Message" doc:id="b1de54e2-b150-4374-846c-f0e77d6127f4" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status code":500,
+	"message":"unable to process ur request due to indigo airlines server down"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
