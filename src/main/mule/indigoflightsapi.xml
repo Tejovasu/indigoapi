@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
     <apikit:config name="indigoflightsapi-config" api="indigoflightsapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5ae0f5e7-d144-49d8-a8ba-e12776b343ea" >
-		<http:listener-connection host="0.0.0.0" port="8081" />
-	</http:listener-config>
-	<flow name="indigoflightsapi-main">
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5ae0f5e7-d144-49d8-a8ba-e12776b343ea">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <flow name="indigoflightsapi-main">
         <http:listener path="/indigo/api/*" config-ref="HTTP_Listener_config">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
@@ -99,5 +99,15 @@ output application/json
     <flow name="get:\indigoFlights:indigoflightsapi-config">
         <logger level="INFO" message="Request received-------#[attributes.queryParams]" />
         <flow-ref doc:name="indigoflightsFlow" doc:id="719ecfa4-f914-44fc-a829-c0c341a18dfc" name="indigoflightsFlow" />
+    </flow>
+    <flow name="get:\indigoFlights\(source)\(destination)\(doj):indigoflightsapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="source">attributes.uriParams.'source'</ee:set-variable>
+                <ee:set-variable variableName="destination">attributes.uriParams.'destination'</ee:set-variable>
+                <ee:set-variable variableName="doj">attributes.uriParams.'doj'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+		<flow-ref doc:name="indigoflightsByUriParamsFlow" doc:id="979cbeaa-1b6c-434a-a898-583e08fa89fb" name="indigoflightsByUriParamsFlow" />
     </flow>
 </mule>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<flow name="indigoflightsByUriParamsFlow" doc:id="a1ee318e-40ed-469d-a76c-e0b5e423108f" >
+		<logger level="INFO" doc:name="Logger" doc:id="c1f4f9de-fed5-43b4-99a3-243c08773a32" message="indigoflightsByuriparams flow starts................ "/>
+		<try doc:name="Try" doc:id="687c7061-8723-4109-9a6c-2109856d3e1b" >
+			<http:request method="GET" doc:name="Request" doc:id="023875d9-b6a5-45a4-9c8b-9ac00251e47f" config-ref="HTTP_Request_configuration" path="/api/getFlights">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	from : attributes.uriParams.source,
+	to : attributes.uriParams.destination,
+	depatureDate : attributes.uriParams.doj
+}]]]></http:query-params>
+		</http:request>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d13a40ec-2dab-4669-b7be-e255123687fa" type="ANY">
+					<logger level="INFO" doc:name="Logger" doc:id="b5f7c8cf-cc12-4532-9cae-06529054a21d" message="error thrown to flow level------"/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="0257cb10-212a-4242-95f4-029886de582b" message="Response from Indigo AIRLINES -------#[payload]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="48306bb5-6c17-429e-a51a-1cef06cdd1c5" >
+				<flow-ref doc:name="errorshandlingFlow" doc:id="1d27bab9-e5a0-4e73-80d6-bcb6cf228fb4" name="errorshandlingFlow"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

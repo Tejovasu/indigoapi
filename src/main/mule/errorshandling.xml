@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="errorshandlingFlow" doc:id="04886911-8820-439e-8bbf-ed0ac7a22b68" >
+		<logger level="INFO" doc:name="Logger" doc:id="ac33a262-e56c-4717-b3a1-f0170bd7fbbf" message="status code 500 error handling flow starts-----------"/>
+		<ee:transform doc:name="Transform Message" doc:id="89256627-bc96-432e-b36b-2d8c0bf5be6d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status code":500,
+	"message":"unable to process ur request due to indigo air lines server down"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="e54e7f41-1d74-4a53-ad3a-db3d1e4b7878" message="error thrown source ----------#[payload]"/>
+	</flow>
+</mule>
